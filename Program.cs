@@ -2,6 +2,9 @@ using AddressBookPro.Data;
 using AddressBookPro.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using AddressBookPro.Services;
+using AddressBookPro.Services.Interfaces;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,9 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+// Add Custom Services
+builder.Services.AddScoped<IImageService, ImageService>();
 
 var app = builder.Build();
 

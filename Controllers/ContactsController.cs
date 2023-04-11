@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authorization;
 using AddressBookPro.Data;
 using AddressBookPro.Models;
 using AddressBookPro.Enums;
+using AddressBookPro.Services;
+using AddressBookPro.Services.Interfaces;
 
 namespace AddressBookPro.Controllers
 {
@@ -17,11 +19,15 @@ namespace AddressBookPro.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IImageService _imageService;
 
-        public ContactsController(ApplicationDbContext context,UserManager<AppUser> userManager)
+        public ContactsController(ApplicationDbContext context,
+                                  UserManager<AppUser> userManager,
+                                  IImageService imageService)
         {
             _context = context;
             _userManager = userManager;
+            _imageService = imageService;
         }
 
         // GET: Contacts
@@ -82,6 +88,11 @@ namespace AddressBookPro.Controllers
                     contact.BirthDate = DateTime.SpecifyKind(contact.BirthDate.Value, DateTimeKind.Utc);
                 }
 
+                if (contact.ImageFile != null)
+                {
+                    contact.ImageData = await _imageService.ConvertFileToByteArrayAsync(contact.ImageFile);
+                    contact.ImageType = contact.ImageFile.ContentType;
+                }
 
                 _context.Add(contact);
                 await _context.SaveChangesAsync();
