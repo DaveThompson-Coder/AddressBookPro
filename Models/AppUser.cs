@@ -19,5 +19,12 @@ namespace AddressBookPro.Models
 
         [NotMapped]
         public string? FullName { get { return $"{FirstName} {LastName}"; } }
+
+        //allows a user to include its related contacts
+        public virtual ICollection<Contact> Contacts { get; set; } = new HashSet<Contact>();
+
+        //allows a user to include its related categories
+        public virtual ICollection<Category> Categories { get; set; } = new HashSet<Category>();
+
     }
 }
