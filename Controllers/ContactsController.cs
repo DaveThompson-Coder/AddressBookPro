@@ -36,7 +36,7 @@ namespace AddressBookPro.Controllers
 
         // GET: Contacts
         [Authorize]
-        public async Task<IActionResult> Index(int categoryId)
+        public IActionResult Index(int categoryId)
         {
             var contacts = new List<Contact>();
             string appUserId = _userManager.GetUserId(User);
@@ -47,13 +47,24 @@ namespace AddressBookPro.Controllers
                                        .ThenInclude(c => c.Categories)
                                        .FirstOrDefault(u => u.Id == appUserId);
 
-            var categories = appUser?.Categories;
+            var categories = appUser.Categories;
 
-            contacts = appUser?.Contacts.OrderBy(c => c.LastName)
+            if (categoryId == 0)
+            {
+            contacts = appUser.Contacts.OrderBy(c => c.LastName)
                                         .ThenBy(c => c.FirstName)
                                         .ToList();
+            }
+            else
+            {
+                contacts = appUser.Categories.FirstOrDefault(c => c.Id == categoryId)
+                                  .Contacts
+                                  .OrderBy(c => c.LastName)
+                                  .ThenBy(c => c.FirstName)
+                                  .ToList();
+            }
 
-            ViewData["CategoryId"] = new SelectList(categories, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", categoryId);
 
             return View(contacts);
         }
