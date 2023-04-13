@@ -38,9 +38,18 @@ namespace AddressBookPro.Services
             }
         }
 
-        public Task<ICollection<Category>> GetContactCategoriesAsync(int contactId)
+        public async Task<ICollection<Category>> GetContactCategoriesAsync(int contactId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Contact? contact = await _context.Contacts.Include(c => c.Categories)
+                                                          .FirstOrDefaultAsync(c => c.Id == contactId);
+                return contact!.Categories;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<ICollection<int>> GetContactCategoryIdsAsync(int contactId)
@@ -87,9 +96,28 @@ namespace AddressBookPro.Services
                                  .AnyAsync();
         }
 
-        public Task RemoveContactFromCategoryAsync(int categoryId, int contactId)
+        public async Task RemoveContactFromCategoryAsync(int categoryId, int contactId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (await IsContactInCategory(categoryId, contactId))
+                {
+                    //Look for Contact & Category in database
+                    Contact? contact = await _context.Contacts.FindAsync(contactId);
+                    Category? category = await _context.Categories.FindAsync(categoryId);
+
+                    //Check if both Contact & Category are not null then remove
+                    if (category != null && contact != null)
+                    {
+                        category.Contacts.Remove(contact);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public IEnumerable<Contact> SearchForContacts(string searchString, string userId)
