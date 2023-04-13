@@ -215,6 +215,13 @@ namespace AddressBookPro.Controllers
             {
                 try
                 {
+                    contact.Created = DateTime.SpecifyKind(contact.Created, DateTimeKind.Utc);
+
+                    if(contact.BirthDate != null)
+                    {
+                        contact.BirthDate = DateTime.SpecifyKind(contact.BirthDate.Value, DateTimeKind.Utc);
+                    }
+
                     _context.Update(contact);
                     await _context.SaveChangesAsync();
                 }
