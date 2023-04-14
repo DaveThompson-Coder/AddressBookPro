@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using AddressBookPro.Data;
 using AddressBookPro.Models;
+using AddressBookPro.Models.ViewModels;
 using AddressBookPro.Enums;
 using AddressBookPro.Services;
 using AddressBookPro.Services.Interfaces;
@@ -102,9 +103,31 @@ namespace AddressBookPro.Controllers
         }
 
         [Authorize]
-        public IActionResult EmailContact(int contactId)
+        public async Task<IActionResult> EmailContact(int id)
         {
-            return View();
+            string appUserId = _userManager.GetUserId(User);
+            Contact contact = await _context.Contacts.Where(c => c.Id == id && c.AppUserID == appUserId)
+                                                     .FirstOrDefaultAsync();
+
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            EmailData emailData = new EmailData()
+            {
+                EmailAddress = contact.Email,
+                FirstName = contact.FirstName,
+                LastName = contact.LastName
+            };
+
+            EmailContactViewModel model = new EmailContactViewModel()
+            {
+                Contact = contact,
+                EmailData = emailData
+            };
+
+            return View(model);
         }
 
         // GET: Contacts/Details/5
