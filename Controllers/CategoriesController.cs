@@ -37,6 +37,33 @@ namespace AddressBookPro.Controllers
             return View(categories);
         }
 
+        [Authorize]
+        public async Task<IActionResult> EmailCategory(int id)
+        {
+            string appUserId = _userManager.GetUserId(User);
+
+            Category? category = await _context.Categories
+                                      .Include(c => c.Contacts)
+                                      .FirstOrDefaultAsync(c => c.Id == id && c.AppUserId == appUserId);
+
+            List<string> emails = category.Contacts.Select(c => c.Email).ToList();
+
+            EmailData eamilData = new EmailData()
+            {
+                GroupName = category.Name,
+                EmailAddress = String.Join(";", emails),
+                Subject = $"Group Message: {category.Name}" 
+            };
+
+            EmailCategoryViewModel model = new EmailCategoryViewModel()
+            {
+                Contacts = category.Contacts.ToList(),
+                EmailData = eamilData
+            };
+
+            return View(model);
+        }
+
         // GET: Categories/Details/5
         [Authorize]
         public async Task<IActionResult> Details(int? id)
