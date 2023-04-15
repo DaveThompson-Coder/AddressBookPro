@@ -23,6 +23,25 @@ namespace AddressBookPro.Controllers
             return View();
         }
 
+        [Route("/Home/HandleError/{code:int}")]
+        public IActionResult HandleError(int code)
+        {
+            var customError = new CustomError();
+
+            customError.code = code;
+
+            if (code == 404)
+            {
+                customError.message = "The page you are looking for might have been removed, had it's name changed or is temporarily unavailable";
+            }
+            else
+            {
+                customError.message = "Sorry, Something went Wrong";
+            }
+
+            return View("~/Views/Shared/CustomError.cshtml", customError);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
